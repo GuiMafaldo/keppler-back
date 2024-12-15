@@ -280,7 +280,8 @@ public class AdminController : ControllerBase
     [HttpPost("colaborador")]
     public async Task<IActionResult> CadastrarColaborador([FromBody] Colaborador newColaborador)
     {
-        var userExists = await _context.Colaborador.SingleOrDefaultAsync(user => user.Username == newColaborador.Username);
+        var userExists = await _context.Colaborador.SingleOrDefaultAsync(user => 
+                                                        user.Username == newColaborador.Username);
 
         if(userExists != null)
         {
@@ -291,7 +292,10 @@ public class AdminController : ControllerBase
         var colaborador = new Colaborador
         {
             Username = newColaborador.Username,
-            Password = passwordHash
+            Password = passwordHash,
+            Name = newColaborador.Name,
+            Email = newColaborador.Email,
+            Telefone = newColaborador.Telefone,
         };
         _context.Colaborador.Add(colaborador);
         await _context.SaveChangesAsync();
@@ -301,7 +305,15 @@ public class AdminController : ControllerBase
     [HttpGet("colaborador")]
     public async Task<IActionResult> ListarColaboradores(Colaborador colaborador)
     {
-        var listColaborador =  await _context.Colaborador.ToListAsync();
+        var listColaborador =  await _context.Colaborador.
+                                                        Select(colaborador => new
+                                                        {
+                                                            colaborador.Id,
+                                                            colaborador.Name,
+                                                            colaborador.Email,
+                                                            colaborador.Username,
+                                                            colaborador.Telefone
+                                                        }).ToListAsync();
         return Ok(listColaborador);
     }
 // ------------------------------------------- ATUALIZA COLABORADOR ---------------------------------------//
